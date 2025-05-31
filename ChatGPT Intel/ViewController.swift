@@ -223,7 +223,11 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
     // MARK: - WKUIDelegate
     
     // Store popup windows to keep them alive
-    private var popupWindows: [NSWindow] = []
+    private var popupWindows: [NSWindow] = [] {
+        didSet {
+            popupWindows = popupWindows.filter { $0.isVisible }
+        }
+    }
 
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // Create a new window for popups (e.g., Google login)
@@ -240,6 +244,10 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
         popupWindow.title = "Authentication"
         popupWindow.makeKeyAndOrderFront(nil)
         popupWindows.append(popupWindow)
+        
+        NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: popupWindow, queue: nil) { [weak self] _ in
+            self?.popupWindows.removeAll { $0 == popupWindow }
+        }
         return popupWebView
     }
 
