@@ -1,0 +1,61 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build ChatGPT Intel",
+			"type": "shell",
+			"command": "xcodebuild",
+			"args": [
+				"-project",
+				"ChatGPT Intel.xcodeproj",
+				"-scheme",
+				"ChatGPT Intel",
+				"-configuration",
+				"Release",
+				"-arch",
+				"x86_64",
+				"build"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"isBackground": false
+		},
+		{
+			"label": "Run ChatGPT Intel",
+			"type": "shell",
+			"command": "open",
+			"args": [
+				"build/Release/ChatGPT Intel.app"
+			],
+			"group": "test",
+			"dependsOn": "Build ChatGPT Intel",
+			"isBackground": false
+		},
+		{
+			"label": "Clean Build",
+			"type": "shell",
+			"command": "xcodebuild",
+			"args": [
+				"-project",
+				"ChatGPT Intel.xcodeproj",
+				"-scheme",
+				"ChatGPT Intel",
+				"clean"
+			],
+			"group": "build",
+			"isBackground": false
+		},
+		{
+			"label": "Build and Run",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"Build ChatGPT Intel",
+				"Run ChatGPT Intel"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}

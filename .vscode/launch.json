@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch ChatGPT Intel",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Release/ChatGPT Intel.app/Contents/MacOS/ChatGPT Intel",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build ChatGPT Intel"
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"build/": true,
+			"**/DerivedData/": true,
+			"**/*.xcuserdatad": true
+		},
+		"files.associations": {
+			"*.swift": "swift",
+			"*.plist": "xml",
+			"*.entitlements": "xml",
+			"*.storyboard": "xml",
+			"*.xcodeproj": "xml"
+		},
+		"editor.insertSpaces": true,
+		"editor.tabSize": 4,
+		"[swift]": {
+			"editor.defaultFormatter": "ms-vscode.vscode-swift",
+			"editor.tabSize": 4
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.vscode-swift",
+			"redhat.vscode-xml",
+			"ms-vscode.vscode-json"
+		]
+	}
+}
