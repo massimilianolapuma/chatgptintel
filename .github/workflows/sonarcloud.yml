@@ -54,7 +54,7 @@ jobs:
 
       - name: Build with xcodebuild
         run: |
-          xcodebuild -project "ChatGPT Intel.xcodeproj" -scheme "ChatGPT Intel" -configuration Release -arch x86_64 build
+          /usr/bin/xcodebuild -project "ChatGPT Intel.xcodeproj" -scheme "ChatGPT Intel" -configuration Release -arch x86_64 build
 
       - name: Analyze with SonarCloud
 
