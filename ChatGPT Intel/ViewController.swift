@@ -220,50 +220,37 @@ class ViewController: NSViewController, WKNavigationDelegate, WKUIDelegate {
         }
     }
     
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard let url = navigationAction.request.url else {
-            decisionHandler(.cancel)
-            return
-        }
-        
-        print("Navigation request to: \(url)")
-        
-        // Allow navigation within ChatGPT domain and related OpenAI domains
-        let allowedHosts = ["chat.openai.com", "openai.com", "auth0.com", "accounts.google.com", "github.com", "chatgpt.com"]
-        
-        if let host = url.host?.lowercased() {
-            let isAllowed = allowedHosts.contains { allowedHost in
-                host == allowedHost || host.hasSuffix(".\(allowedHost)")
-            }
-            
-            if isAllowed {
-                print("Allowing navigation to: \(url)")
-                decisionHandler(.allow)
-            } else if url.scheme == "https" || url.scheme == "http" {
-                // Open external links in default browser
-                print("Opening external URL in browser: \(url)")
-                NSWorkspace.shared.open(url)
-                decisionHandler(.cancel)
-            } else {
-                print("Cancelling navigation to: \(url)")
-                decisionHandler(.cancel)
-            }
-        } else {
-            print("Cancelling navigation - no host: \(url)")
-            decisionHandler(.cancel)
-        }
-    }
-    
     // MARK: - WKUIDelegate
     
-    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        // Handle popup windows - load in the same webview instead
-        if let url = navigationAction.request.url {
-            webView.load(URLRequest(url: url))
+    // Store popup windows to keep them alive
+    private var popupWindows: [NSWindow] = [] {
+        didSet {
+            popupWindows = popupWindows.filter { $0.isVisible }
         }
-        return nil
     }
-    
+
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        // Create a new window for popups (e.g., Google login)
+        let popupWebView = WKWebView(frame: NSRect(x: 0, y: 0, width: 600, height: 800), configuration: configuration)
+        popupWebView.navigationDelegate = self
+        popupWebView.uiDelegate = self
+        popupWebView.customUserAgent = webView.customUserAgent
+        
+        let popupWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 600, height: 800),
+                                   styleMask: [.titled, .closable, .resizable],
+                                   backing: .buffered,
+                                   defer: false)
+        popupWindow.contentView = popupWebView
+        popupWindow.title = "Authentication"
+        popupWindow.makeKeyAndOrderFront(nil)
+        popupWindows.append(popupWindow)
+        
+        NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: popupWindow, queue: nil) { [weak self] _ in
+            self?.popupWindows.removeAll { $0 == popupWindow }
+        }
+        return popupWebView
+    }
+
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         let alert = NSAlert()
         alert.messageText = "ChatGPT"
